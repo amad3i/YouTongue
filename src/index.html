@@ -1,12 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Kek</title>
-    <link rel="stylesheet" href="index.css" />
-  </head>
-  <body>
-    <h1>Kek</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>YouTongue</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <h1>YouTongue</h1>
+  <p>↓ Введите ссылку или выберите файл ↓</p>
+  <input id="video-url" type="text" placeholder="https://youtu.be/…" />
+
+  <p>Режим:</p>
+  <select id="mode">
+    <option value="audio">Озвучить (MP4)</option>
+    <option value="subs">Субтитры (.vtt)</option>
+    <option value="subs-srt">Субтитры (.srt)</option>
+  </select>
+
+  <p>Язык перевода:</p>
+  <select id="reslang">
+    <option value="ru">Русский</option>
+    <option value="en">Английский</option>
+    <option value="kk">Казахский</option>
+  </select>
+
+  <button id="process-button">🚀 Перевести</button>
+  <pre id="status" style="white-space: pre-wrap;"></pre>
+  <script src="renderer.js"></script>
+</body>
 </html>
