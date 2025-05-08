@@ -1,0 +1,20 @@
+# node
+node_modules/
+package-lock.json
+
+# Forge build artifacts
+out/
+dist/
+
+# приватный движок
+vot-cli/
+
+# system
+.DS_Store
+Thumbs.db
+
+# editor junk
+*.log
+.vscode/
+.idea/
+*.swp
