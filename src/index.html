@@ -3,29 +3,248 @@
 <head>
   <meta charset="UTF-8">
   <title>YouTongue</title>
-  <link rel="stylesheet" href="index.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow: auto;
+    }
+    .dark-theme {
+      background: #1e1e2f;
+      color: #d4d4d4;
+    }
+    .dark-theme .card {
+      background: #2a2a3c;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .dark-theme .bg-gray-800 {
+      background: #3b3b4f;
+    }
+    .dark-theme .border-gray-600 {
+      border-color: #4b4b5f;
+    }
+    .dark-theme .text-blue-white {
+      color: #c6d0f5;
+    }
+    .dark-theme .title-bar {
+      background: #1e1e2f;
+    }
+    .dark-theme .folder-button {
+      background: #3b3b4f;
+      border-color: #4b4b5f;
+      color: #c6d0f5;
+    }
+    .dark-theme .folder-button:hover {
+      background: #4b4b5f;
+    }
+    .dark-theme .progress-bar {
+      background-color: #2197f2;
+    }
+    .dark-theme .progress-background {
+      background-color: #3b3b4f;
+    }
+    .light-theme {
+      background: #f5f5f5;
+      color: #333;
+    }
+    .light-theme .card {
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .light-theme .bg-gray-800 {
+      background: #e5e5e5;
+    }
+    .light-theme .border-gray-600 {
+      border-color: #ccc;
+    }
+    .light-theme .text-blue-white {
+      color: #333;
+    }
+    .light-theme .title-bar {
+      background: #f5f5f5;
+    }
+    .light-theme .folder-button {
+      background: #e5e5e5;
+      border-color: #ccc;
+      color: #333;
+    }
+    .light-theme .folder-button:hover {
+      background: #d5d5d5;
+    }
+    .light-theme .progress-bar {
+      background-color: #2197f2;
+    }
+    .light-theme .progress-background {
+      background-color: #e5e5e5;
+    }
+    .title-bar {
+      -webkit-app-region: drag;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 8px 16px;
+      height: 40px;
+    }
+    .title-bar-button {
+      -webkit-app-region: no-drag;
+      font-size: 18px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .title-bar-button#close-button {
+      background: none; /* Убираем hover-эффект */
+    }
+    .title-bar-button#minimize-button,
+    .title-bar-button#maximize-button,
+    .title-bar-button#theme-toggle,
+    .title-bar-button#add-block-button {
+      background: none; /* Убираем hover-эффект */
+    }
+    .text-tongue-blue { color: #2197f2; }
+    .bg-blue-accent { background-color: #2197f2; }
+    .hover\:bg-blue-accent-dark:hover { background-color: #1a7dd2; }
+    .border-blue-accent { border-color: #2197f2; }
+    .focus\:ring-blue-accent:focus { box-shadow: 0 0 0 3px rgba(33, 151, 242, 0.5); }
+    .truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #canvas {
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: calc(100vh - 40px);
+      padding: 60px 30px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .card {
+      width: 400px;
+      height: 500px;
+      padding: 25px;
+    }
+    .card p, .card label, .card input, .card select, .card button {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    .card input::placeholder {
+      font-size: 16px;
+    }
+    .folder-button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      overflow: hidden;
+    }
+    .folder-button span {
+      margin-left: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .progress-container {
+      margin-top: 15px;
+    }
+    .progress-background {
+      position: relative;
+      width: 100%;
+      height: 28px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: width 0.3s ease-in-out;
+    }
+    .progress-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0);
+      border-radius: 0px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0);
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0);
+    }
+  </style>
 </head>
-<body>
-  <h1>YouTongue</h1>
-  <p>↓ Введите ссылку или выберите файл ↓</p>
-  <input id="video-url" type="text" placeholder="https://youtu.be/…" />
+<body class="min-h-screen dark-theme" style="min-height: 700px;">
+  <div class="title-bar flex justify-between items-center px-4 py-2 text-blue-white">
+    <div class="flex items-center gap-3">
+      <img src="./assets/logo.png" alt="Logo" class="h-6">
+      <h1 class="text-xl font-semibold"><span class="text-blue-white">You</span><span class="text-tongue-blue">Tongue</span></h1>
+    </div>
+    <div class="flex gap-3">
+      <button id="add-block-button" class="title-bar-button text-blue-white">+</button>
+      <button id="theme-toggle" class="title-bar-button text-blue-white">🌙</button>
+      <button id="minimize-button" class="title-bar-button text-blue-white">🗕</button>
+      <button id="maximize-button" class="title-bar-button text-blue-white">🗖</button>
+      <button id="close-button" class="title-bar-button text-blue-white">🗙</button>
+    </div>
+  </div>
 
-  <p>Режим:</p>
-  <select id="mode">
-    <option value="audio">Озвучить (MP4)</option>
-    <option value="subs">Субтитры (.vtt)</option>
-    <option value="subs-srt">Субтитры (.srt)</option>
-  </select>
+  <div id="canvas" class="min-h-[calc(100vh-40px)]">
+    <div class="card p-4 rounded-lg shadow-lg" data-index="0">
+      <div class="relative">
+        <button id="close-block-0" class="absolute top-[-8px] right-0 p-1 text-gray-500 hover:text-red-500 text-xl">✖</button>
+        <p class="text-center text-blue-white truncate text-base">↓ Введите ссылку ↓</p>
+        <input id="video-url-0" type="text" placeholder="https://youtu.be/…" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+        <select id="mode-0" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+          <option value="audio">Озвучить (MP4)</option>
+          <option value="subs">Субтитры (.vtt)</option>
+          <option value="subs-srt">Субтитры (.srt)</option>
+        </select>
+        <select id="reslang-0" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+          <option value="ru">Русский</option>
+          <option value="en">Английский</option>
+          <option value="kk">Казахский</option>
+        </select>
+        <button id="select-folder-button-0" class="folder-button">
+          <span>📁</span><span id="selected-folder-0" class="truncate">Папка</span>
+        </button>
+        <button id="process-button-0" class="w-full p-2 bg-blue-accent text-white font-semibold rounded hover:bg-blue-accent-dark text-base">🚀 Перевести</button>
+        <div id="progress-container-0" class="progress-container">
+          <div class="progress-background">
+            <div id="progress-bar-0" class="progress-bar" style="width: 0%;"></div>
+            <div class="progress-text" id="progress-text-0">Прогресс: 0%</div>
+          </div>
+          <p id="operation-text-0" class="text-center text-blue-white mt-2 text-base truncate">Ожидание...</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <p>Язык перевода:</p>
-  <select id="reslang">
-    <option value="ru">Русский</option>
-    <option value="en">Английский</option>
-    <option value="kk">Казахский</option>
-  </select>
-
-  <button id="process-button">🚀 Перевести</button>
-  <pre id="status" style="white-space: pre-wrap;"></pre>
   <script src="renderer.js"></script>
 </body>
 </html>

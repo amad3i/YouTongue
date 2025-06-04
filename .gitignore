@@ -9,6 +9,9 @@ dist/
 # приватный движок
 vot-cli/
 
+# переведенные видео
+traslated/
+
 # system
 .DS_Store
 Thumbs.db
