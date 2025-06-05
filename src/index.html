@@ -95,14 +95,23 @@
       padding: 4px 8px;
       border-radius: 4px;
     }
-    .title-bar-button#close-button {
-      background: none; /* Убираем hover-эффект */
+    .dark-theme .title-bar-button {
+      background: transparent;
     }
-    .title-bar-button#minimize-button,
-    .title-bar-button#maximize-button,
-    .title-bar-button#theme-toggle,
-    .title-bar-button#add-block-button {
-      background: none; /* Убираем hover-эффект */
+    .light-theme .title-bar-button {
+      background: transparent;
+    }
+    .dark-theme .title-bar-button#close-button {
+      background: transparent;
+    }
+    .light-theme .title-bar-button#close-button {
+      background: transparent;
+    }
+    .dark-theme .title-bar-button#close-button:hover {
+      background: #ff4444;
+    }
+    .light-theme .title-bar-button#close-button:hover {
+      background: #ff4444;
     }
     .text-tongue-blue { color: #2197f2; }
     .bg-blue-accent { background-color: #2197f2; }
@@ -136,7 +145,7 @@
     .card input::placeholder {
       font-size: 16px;
     }
-    .folder-button {
+    .folder-button, .file-button {
       display: flex;
       align-items: center;
       width: 100%;
@@ -146,7 +155,7 @@
       text-align: left;
       overflow: hidden;
     }
-    .folder-button span {
+    .folder-button span, .file-button span {
       margin-left: 6px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -185,17 +194,17 @@
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
-      background: rgba(255, 255, 255, 0);
+      background: rgba(255, 255, 255, 0.00);
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0);
-      border-radius: 0px;
+      background: rgba(255, 255, 255, 0.00);
+      border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0);
+      background: rgba(255, 255, 255, 0.00);
     }
     ::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0);
+      background: rgba(255, 255, 255, 0.00);
     }
   </style>
 </head>
@@ -206,11 +215,11 @@
       <h1 class="text-xl font-semibold"><span class="text-blue-white">You</span><span class="text-tongue-blue">Tongue</span></h1>
     </div>
     <div class="flex gap-3">
-      <button id="add-block-button" class="title-bar-button text-blue-white">+</button>
-      <button id="theme-toggle" class="title-bar-button text-blue-white">🌙</button>
-      <button id="minimize-button" class="title-bar-button text-blue-white">🗕</button>
-      <button id="maximize-button" class="title-bar-button text-blue-white">🗖</button>
-      <button id="close-button" class="title-bar-button text-blue-white">🗙</button>
+      <button id="add-block-button" class="title-bar-button text-blue-white rounded">+</button>
+      <button id="theme-toggle" class="title-bar-button text-blue-white rounded">🌙</button>
+      <button id="minimize-button" class="title-bar-button text-blue-white rounded">🗕</button>
+      <button id="maximize-button" class="title-bar-button text-blue-white rounded">🗖</button>
+      <button id="close-button" class="title-bar-button text-blue-white rounded">🗙</button>
     </div>
   </div>
 
@@ -219,7 +228,12 @@
       <div class="relative">
         <button id="close-block-0" class="absolute top-[-8px] right-0 p-1 text-gray-500 hover:text-red-500 text-xl">✖</button>
         <p class="text-center text-blue-white truncate text-base">↓ Введите ссылку ↓</p>
-        <input id="video-url-0" type="text" placeholder="https://youtu.be/…" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+        <div class="flex gap-2">
+          <input id="video-url-0" type="text" placeholder="https://youtu.be/…" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+          <button id="select-url-file-0" class="file-button bg-gray-800 border border-gray-600 rounded">
+            <span>📄</span><span id="selected-url-file-0" class="truncate">Выбрать файл</span>
+          </button>
+        </div>
         <select id="mode-0" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
           <option value="audio">Озвучить (MP4)</option>
           <option value="subs">Субтитры (.vtt)</option>

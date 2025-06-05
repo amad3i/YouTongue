@@ -18,19 +18,46 @@ window.addEventListener('DOMContentLoaded', () => {
     const operationText = document.getElementById(`operation-text-${index}`);
     const selectFolderButton = document.getElementById(`select-folder-button-${index}`);
     const selectedFolderSpan = document.getElementById(`selected-folder-${index}`);
+    const selectUrlFileButton = document.getElementById(`select-url-file-${index}`);
+    const selectedUrlFileSpan = document.getElementById(`selected-url-file-${index}`);
     const closeButton = document.getElementById(`close-block-${index}`);
+
+    let urlsToProcess = [];
 
     function toggleInputs(disabled) {
       inpUrl.disabled = disabled;
       modeSelect.disabled = disabled;
       reslangSelect.disabled = disabled;
       selectFolderButton.disabled = disabled;
+      selectUrlFileButton.disabled = disabled;
     }
 
     selectFolderButton.addEventListener('click', () => {
       window.youTongue.selectFolder().then(folderPath => {
         if (folderPath) selectedFolderSpan.textContent = folderPath;
       });
+    });
+
+    selectUrlFileButton.addEventListener('click', async () => {
+      console.log(`[Renderer] Клик по кнопке выбора файла для блока ${index}`);
+      try {
+        const filePath = await window.youTongue.selectFile();
+        console.log(`[Renderer] Выбранный файл: ${filePath}`);
+        if (filePath) {
+          selectedUrlFileSpan.textContent = filePath.split(/[/\\]/).pop();
+          const content = await window.youTongue.readFile(filePath);
+          console.log(`[Renderer] Содержимое файла: ${content}`);
+          urlsToProcess = content
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.startsWith('#'));
+          console.log(`[Renderer] Список URL для обработки: ${urlsToProcess}`);
+          inpUrl.value = '';
+        }
+      } catch (err) {
+        console.error(`[Renderer] Ошибка при выборе файла: ${err.message}`);
+        operationText.innerText = `Ошибка при выборе файла: ${err.message}`;
+      }
     });
 
     closeButton.addEventListener('click', () => {
@@ -48,22 +75,47 @@ window.addEventListener('DOMContentLoaded', () => {
         progressBar.style.width = '0%';
         progressText.innerText = 'Прогресс: 0%';
         operationText.innerText = 'Запуск обработки...';
-        const url = inpUrl.value.trim();
-        if (!url) {
-          operationText.innerText = 'Введите ссылку на видео или канал';
+
+        let urls = [];
+        const manualUrl = inpUrl.value.trim();
+        if (manualUrl) {
+          urls = [manualUrl];
+        } else if (urlsToProcess.length > 0) {
+          urls = [...urlsToProcess];
+        } else {
+          operationText.innerText = 'Введите ссылку или выберите файл со списком ссылок';
           return;
         }
+
         const folderPath = selectedFolderSpan.textContent === 'Папка' ? path.join(__dirname, 'translated') : selectedFolderSpan.textContent;
         toggleInputs(true);
         btn.innerText = '🛑 Остановить';
         processes[index] = true;
-        window.youTongue.processVideo({
-          url,
-          mode: modeSelect.value,
-          reslang: reslangSelect.value,
-          folderPath,
-          blockIndex: index,
-        });
+
+        let currentUrlIndex = 0;
+        const processNextUrl = () => {
+          if (currentUrlIndex >= urls.length || !processes[index]) {
+            btn.innerText = '📂 Открыть';
+            toggleInputs(false);
+            delete processes[index];
+            return;
+          }
+
+          const url = urls[currentUrlIndex];
+          operationText.innerText = `Обработка ${currentUrlIndex + 1}/${urls.length}: ${url}`;
+          window.youTongue.processVideo({
+            url,
+            mode: modeSelect.value,
+            reslang: reslangSelect.value,
+            folderPath,
+            blockIndex: index,
+          }).finally(() => {
+            currentUrlIndex++;
+            processNextUrl();
+          });
+        };
+
+        processNextUrl();
       } else if (action === '🛑 Остановить') {
         window.youTongue.stopProcess(index);
         delete processes[index];
@@ -73,24 +125,53 @@ window.addEventListener('DOMContentLoaded', () => {
         progressBar.style.width = '0%';
         progressText.innerText = 'Прогресс: 0%';
         operationText.innerText = 'Запуск обработки...';
-        const url = inpUrl.value.trim();
+
+        let urls = [];
+        const manualUrl = inpUrl.value.trim();
+        if (manualUrl) {
+          urls = [manualUrl];
+        } else if (urlsToProcess.length > 0) {
+          urls = [...urlsToProcess];
+        } else {
+          operationText.innerText = 'Введите ссылку или выберите файл со списком ссылок';
+          return;
+        }
+
         const folderPath = selectedFolderSpan.textContent === 'Папка' ? path.join(__dirname, 'translated') : selectedFolderSpan.textContent;
         toggleInputs(true);
         btn.innerText = '🛑 Остановить';
         processes[index] = true;
-        window.youTongue.processVideo({
-          url,
-          mode: modeSelect.value,
-          reslang: reslangSelect.value,
-          folderPath,
-          blockIndex: index,
-        });
+
+        let currentUrlIndex = 0;
+        const processNextUrl = () => {
+          if (currentUrlIndex >= urls.length || !processes[index]) {
+            btn.innerText = '📂 Открыть';
+            toggleInputs(false);
+            delete processes[index];
+            return;
+          }
+
+          const url = urls[currentUrlIndex];
+          operationText.innerText = `Обработка ${currentUrlIndex + 1}/${urls.length}: ${url}`;
+          window.youTongue.processVideo({
+            url,
+            mode: modeSelect.value,
+            reslang: reslangSelect.value,
+            folderPath,
+            blockIndex: index,
+          }).finally(() => {
+            currentUrlIndex++;
+            processNextUrl();
+          });
+        };
+
+        processNextUrl();
       } else if (action === '📂 Открыть') {
         window.youTongue.openFolder(selectedFolderSpan.textContent);
       }
     });
 
-    window.youTongue.onStatus((msg, progress, blockIndex) => {
+    window.youTongue.onStatus((msg, progress, blockIndex, sizeMB) => {
       if (blockIndex !== index) return;
       operationText.innerText = msg;
 
@@ -103,12 +184,10 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       progressBar.style.width = `${percent}%`;
-      progressText.innerText = `Прогресс: ${percent}%`;
+      progressText.innerText = `Прогресс: ${percent}%${sizeMB ? `, ${sizeMB} MB` : ''}`;
 
       if (percent === 100) {
-        btn.innerText = '📂 Открыть';
-        toggleInputs(false);
-        delete processes[index];
+        // Логика завершения обработки одной ссылки уже обрабатывается в processNextUrl
       } else if (msg.includes('Ошибка')) {
         btn.innerText = '🚀 Перевести';
         toggleInputs(false);
@@ -122,7 +201,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const blockCount = blocks.length;
 
     if (blockCount === 0) {
-      canvas.innerHTML = '<p id="no-tasks-text" class="text-blue-white text-center text-base">Добавьте новую задачу, нажав \"+\" вверху.</p>';
+      canvas.innerHTML = '<p id="no-tasks-text" class="text-blue-white text-center text-base">Добавьте новую задачу, нажав "+" вверху.</p>';
       window.youTongue.resizeWindow(900, 700);
       return;
     } else if (blockCount === 1 && canvas.querySelector('#no-tasks-text')) {
@@ -145,7 +224,12 @@ window.addEventListener('DOMContentLoaded', () => {
       <div class="relative">
         <button id="close-block-${blockCount}" class="absolute top-[-8px] right-0 p-1 text-gray-500 hover:text-red-500 text-xl">✖</button>
         <p class="text-center text-blue-white truncate text-base">↓ Введите ссылку ↓</p>
-        <input id="video-url-${blockCount}" type="text" placeholder="https://youtu.be/…" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+        <div class="flex gap-2">
+          <input id="video-url-${blockCount}" type="text" placeholder="https://youtu.be/…" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
+          <button id="select-url-file-${blockCount}" class="file-button bg-gray-800 border border-gray-600 rounded">
+            <span>📄</span><span id="selected-url-file-${blockCount}" class="truncate">Выбрать файл</span>
+          </button>
+        </div>
         <select id="mode-${blockCount}" class="w-full p-2 bg-gray-800 text-blue-white border border-gray-600 rounded text-base">
           <option value="audio">Озвучить (MP4)</option>
           <option value="subs">Субтитры (.vtt)</option>
@@ -183,7 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('theme-toggle').addEventListener('click', () => {
     const isDark = document.body.classList.contains('dark-theme');
-    document.body.classList.remove('dark-theme', 'light-theme'); // Удаляем обе темы
+    document.body.classList.remove('dark-theme', 'light-theme');
     const newTheme = isDark ? 'light-theme' : 'dark-theme';
     document.body.classList.add(newTheme);
     localStorage.setItem('theme', newTheme === 'dark-theme' ? 'dark' : 'light');
@@ -196,5 +280,5 @@ window.addEventListener('DOMContentLoaded', () => {
 
   initializeBlock(0);
   updateCanvasSize();
-  window.youTongue.resizeWindow(900, 700); // Начальные размеры
+  window.youTongue.resizeWindow(900, 700);
 });

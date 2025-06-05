@@ -1,32 +1,57 @@
-const ffmpegPath = require('ffmpeg-static');
-const ffmpeg = require('fluent-ffmpeg');
-const path = require('path');
+const { spawn } = require('child_process');
+const fs = require('fs');
 
-ffmpeg.setFfmpegPath(ffmpegPath);
+async function mergeVideoAndAudio(event, videoPath, audioPath, finalPath, blockIndex) {
+  if (!fs.existsSync(videoPath)) {
+    throw new Error(`Video file not found: ${videoPath}`);
+  }
+  if (!fs.existsSync(audioPath)) {
+    throw new Error(`Audio file not found: ${audioPath}`);
+  }
 
-async function mergeVideoAndAudio(event, videoPath, audioPath, finalPath) {
-  try {
-    await new Promise((resolve, reject) => {
-      const ff = ffmpeg()
-        .input(videoPath)
-        .input(audioPath)
-        .outputOptions('-map 0:v -map 1:a -c:v copy -c:a aac -shortest')
-        .save(finalPath);
+  console.log(`[Merger] Merging video: ${videoPath}, audio: ${audioPath}, output: ${finalPath}`);
 
-      ff.on('progress', progress => {
-        const percent = (progress.percent || 0).toFixed(2);
-        event.reply('process-status', `Склейка: ${percent}%`, 66 + (percent / 3));
-      });
+  return new Promise((resolve, reject) => {
+    const args = [
+      '-y',
+      '-i', videoPath,
+      '-i', audioPath,
+      '-map', '0:v',
+      '-map', '1:a',
+      '-c:v', 'copy',
+      '-c:a', 'aac',
+      '-shortest',
+      finalPath,
+    ];
 
-      ff.on('error', err => reject(err));
-      ff.on('end', () => resolve());
+    const ff = spawn('ffmpeg', args);
+
+    ff.stdout.on('data', chunk => {
+      const msg = chunk.toString();
+      console.log('[ffmpeg]', msg);
     });
 
-    event.reply('process-status', `✅ Склейка завершена: ${finalPath}`, 100);
-  } catch (err) {
-    event.reply('process-status', `❌ Ошибка склейки: ${err.message}`);
-    throw err;
-  }
+    ff.stderr.on('data', chunk => {
+      const msg = chunk.toString();
+      console.error('[ffmpeg]', msg);
+    });
+
+    ff.on('error', err => {
+      console.error('[ffmpeg] Error:', err);
+      reject(err);
+    });
+
+    ff.on('close', code => {
+      if (code === 0) {
+        console.log(`[Merger] Successfully merged to ${finalPath}`);
+        resolve();
+      } else {
+        const err = new Error(`ffmpeg exited with code ${code}`);
+        console.error('[ffmpeg] Error:', err);
+        reject(err);
+      }
+    });
+  });
 }
 
 module.exports = { mergeVideoAndAudio };

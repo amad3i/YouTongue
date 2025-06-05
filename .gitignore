@@ -11,6 +11,7 @@ vot-cli/
 
 # переведенные видео
 traslated/
+src/traslated/
 
 # system
 .DS_Store
