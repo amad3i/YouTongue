@@ -1,4 +1,4 @@
-# 🎙️ YouTongue — Automated Neural Voiceover & Localization for YouTube Videos
+# 🎙️ YouTongue — videos in your language.
 
 **YouTongue** is a desktop Electron app for automatic downloading, translation, and voiceover of YouTube videos.
 
@@ -84,4 +84,3 @@ npm install
 npm start
 ```
 
-### YouTongue — videos in your language.
