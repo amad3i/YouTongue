@@ -1,6 +1,6 @@
 {
   "name": "youtongue",
-  "productName": "youtongue",
+  "productName": "YouTongue",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/index.js",
@@ -33,5 +33,45 @@
     "@electron-forge/plugin-fuses": "^7.8.0",
     "@electron/fuses": "^1.8.0",
     "electron": "^36.2.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "src/assets/logo", 
+        "extraResource": [
+          "src/assets/logo.png",
+          "src/assets/logo.svg",
+          "src/assets/logo.ico"
+        ]
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "setupIcon": "src/assets/logo.ico" 
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": ["darwin"]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "icon": "src/assets/logo.png" 
+            }
+          }
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "options": {
+              "icon": "src/assets/logo.png" 
+            }
+          }
+        }
+      ]
+    }
   }
 }
