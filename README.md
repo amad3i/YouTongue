@@ -67,10 +67,11 @@ cd YouTongue
 ## 2. Download and add vot-cli
 
 Place the vot-cli folder next to src/ in the root of the project:
+```
 YouTongue/
 ├── src/
 └── vot-cli/ ← place here
-
+```
 ## 3. Install dependencies
 
 ```bash
