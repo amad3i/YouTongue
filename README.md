@@ -1,6 +1,7 @@
 # 🎙️ YouTongue — videos in your language.
 
 **YouTongue** is a desktop Electron app for automatic downloading, translation, and voiceover of YouTube videos.
+
 <img width="900" height="702" alt="image" src="https://github.com/user-attachments/assets/ed53b8a0-64c2-4cbe-a3ed-b4950522003d" />
 
 
